@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Palm Oil Label Checker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+          <path d="M12 22V12M12 12C12 8 8 4 4 5M12 12C12 8 16 4 20 5M12 12C12 8 8 8 6 12M12 12C12 8 16 8 18 12"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <div class="header-title">Palm Oil Label Checker</div>
+        <div class="header-sub">Review &amp; checklist foto labeling CVAT</div>
+      </div>
+      <div class="header-badge">
+        <div class="badge-count" id="checked-count">0</div>
+        <div class="badge-label" id="checked-total">/ 12 dicek</div>
+      </div>
+    </div>
+
+    <!-- Folder grid -->
+
+  <select id="folder-select" style="width:100%; padding:10px; font-size:14px; border:none; outline:none; background:transparent;">
+    <option value="all">Semua Folder</option>
+  </select>
+
+    <!-- Filter buttons -->
+    <div class="filter-row" id="filter-row">
+      <button class="filter-btn active-all" data-filter="all">Semua</button>
+      <button class="filter-btn" data-filter="pruning">Pruning</button>
+      <button class="filter-btn" data-filter="underpruning">Under pruning</button>
+      <button class="filter-btn" data-filter="ragu">Ragu</button>
+    </div>
+
+    <!-- Main layout -->
+    <div class="main-layout">
+
+      <!-- Left: photo + slider + nav -->
+      <div class="photo-col">
+        <div class="photo-frame" id="photo-frame">
+          <div class="frame-topbar">
+            <span class="frame-name" id="frame-name">—</span>
+            <span class="frame-counter" id="frame-counter">0 / 0</span>
+          </div>
+          <img id="main-photo" src="" alt="foto sawit" />
+          <div class="checked-badge" id="checked-badge" style="display:none"></div>
+        </div>
+
+        <div class="slider-row">
+          <input type="range" id="img-slider" min="0" max="0" value="0" step="1" />
+          <div class="slider-num" id="slider-num">1</div>
+        </div>
+
+        <div class="nav-row">
+          <button class="nav-btn" id="btn-prev">← Previous</button>
+          <button class="nav-btn" id="btn-next">Next →</button>
+        </div>
+      </div>
+
+      <!-- Right: checklist -->
+      <div class="check-col">
+        <div class="section-label">Checklist label</div>
+        <button class="check-btn pruning-btn" id="btn-pruning" data-label="pruning">
+          <span>Pruning</span>
+          <div class="check-dot" id="dot-pruning"></div>
+        </button>
+        <button class="check-btn under-btn" id="btn-under" data-label="underpruning">
+          <span>Under pruning</span>
+          <div class="check-dot" id="dot-under"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
