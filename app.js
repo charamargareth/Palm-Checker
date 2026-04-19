@@ -20,7 +20,7 @@ async function init() {
 // ==========================
 async function loadFolders() {
   try {
-    const res = await fetch('http://localhost:3000/folders')
+    const res = await fetch('/folders')
     const folders = await res.json()
 
     const select = document.getElementById('folder-select')
@@ -48,7 +48,7 @@ document.getElementById('folder-select').addEventListener('change', (e) => {
 // ==========================
 async function loadImages() {
   try {
-    const res = await fetch('http://localhost:3000/images')
+    const res = await fetch('/images')
     const data = await res.json()
     console.log("DATA images:", data)
 
@@ -65,7 +65,7 @@ async function loadImages() {
 // ==========================
 async function loadChecklist() {
   try {
-    const res = await fetch('http://localhost:3000/checklist')
+    const res = await fetch('/checklist')
     const data = await res.json()
     console.log("DATA checklist:", data)
 
@@ -245,7 +245,7 @@ async function selectLabel(label) {
 // ==========================
 async function submitLabel(image_id, user_label) {
   try {
-    const res = await fetch('http://localhost:3000/submit', {
+    const res = await fetch('/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image_id, user_label })
@@ -262,7 +262,7 @@ async function submitLabel(image_id, user_label) {
 // ==========================
 async function deleteLabel(image_id) {
   try {
-    const res = await fetch('http://localhost:3000/submit', {
+    const res = await fetch('/submit', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image_id })
