@@ -2,7 +2,7 @@
   "name": "palm-checker",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+   "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,7 +14,8 @@
     "@supabase/supabase-js": "^2.103.3",
     "cloudinary": "^2.9.0",
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
+  
+  "dotenv": "^17.4.2",
     "express": "^5.2.1"
   }
 }
