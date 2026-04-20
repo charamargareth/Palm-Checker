@@ -156,6 +156,46 @@ app.get('/folders', async (req, res) => {
   res.json(data)
 })
 
+const XLSX = require('xlsx')
+
+app.get('/export/:folder_id', async (req, res) => {
+  const { folder_id } = req.params
+
+  // Ambil nama folder
+  const { data: folderData } = await supabase
+    .from('folders')
+    .select('name')
+    .eq('id', folder_id)
+    .single()
+
+  // Ambil semua gambar di folder ini yang sudah di-checklist
+  const { data, error } = await supabase
+    .from('checklist')
+    .select('image_id, user_label, images(filename, cvat_label, folder_id)')
+    .eq('images.folder_id', folder_id)
+
+  if (error) return res.status(500).json({ message: 'Gagal export', detail: error })
+
+  const rows = data
+    .filter(item => item.images !== null)
+    .map(item => ({
+      filename: item.images.filename,
+      cvat_label: item.images.cvat_label,
+      user_label: item.user_label
+    }))
+
+  const ws = XLSX.utils.json_to_sheet(rows)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Labels')
+
+  const folderName = folderData?.name || `folder_${folder_id}`
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  res.setHeader('Content-Disposition', `attachment; filename="${folderName}.xlsx"`)
+  res.send(buf)
+})
+
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)

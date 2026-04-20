@@ -329,3 +329,11 @@ document.getElementById('btn-prev').onclick = () => {
 // START
 // ==========================
 init()
+
+function exportFolder() {
+  if (activeFolderId === 'all') {
+    alert('Pilih folder dulu sebelum export!')
+    return
+  }
+  window.open(`/export/${activeFolderId}`, '_blank')
+}
