@@ -1,3 +1,4 @@
+let activeUser = ''
 let images = []
 let filteredImages = []
 let currentIndex = 0
@@ -41,6 +42,9 @@ async function loadFolders() {
 document.getElementById('folder-select').addEventListener('change', (e) => {
   activeFolderId = e.target.value
   applyFilterAndFolder()
+})
+document.getElementById('user-select').addEventListener('change', (e) => {
+  activeUser = e.target.value
 })
 
 // ==========================
@@ -219,6 +223,11 @@ function updateNavButtons() {
 // LABEL CLICK — toggle support
 // ==========================
 async function selectLabel(label) {
+  if (!activeUser) {
+    alert('Pilih nama dulu sebelum checklist!')
+    return
+  }
+
   const img = filteredImages[currentIndex]
   if (!img) return
 
@@ -229,7 +238,7 @@ async function selectLabel(label) {
     delete checked[img.id]
     showToast(null)
   } else {
-    await submitLabel(img.id, label)
+    await submitLabel(img.id, label, activeUser)
     checked[img.id] = label
     showToast(label)
   }
@@ -243,12 +252,12 @@ async function selectLabel(label) {
 // ==========================
 // POST /submit
 // ==========================
-async function submitLabel(image_id, user_label) {
+async function submitLabel(image_id, user_label, user_name) {
   try {
     const res = await fetch('/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image_id, user_label })
+      body: JSON.stringify({ image_id, user_label, user_name })
     })
     const data = await res.json()
     if (!res.ok) console.error('❌ submitLabel error:', data)

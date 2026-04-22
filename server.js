@@ -71,24 +71,21 @@ app.get('/checklist', async (req, res) => {
 // ✅ FIX: Ganti insert biasa dengan upsert
 // ==========================
 app.post('/submit', async (req, res) => {
-  const { image_id, user_label } = req.body
+  const { image_id, user_label, user_name } = req.body
 
-  // ✅ FIX: Validasi input
-  if (!image_id || !user_label) {
-    return res.status(400).json({ message: 'image_id dan user_label wajib diisi' })
+  if (!image_id || !user_label || !user_name) {
+    return res.status(400).json({ message: 'image_id, user_label, dan user_name wajib diisi' })
   }
 
   const validLabels = ['pruning', 'underpruning']
   if (!validLabels.includes(user_label)) {
-    return res.status(400).json({ message: `user_label tidak valid. Harus salah satu dari: ${validLabels.join(', ')}` })
+    return res.status(400).json({ message: `user_label tidak valid.` })
   }
 
-  // ✅ FIX: Upsert berdasarkan image_id supaya tidak duplikat
-  // Pastikan kolom image_id di tabel checklist sudah di-set sebagai UNIQUE di Supabase
   const { error } = await supabase
     .from('checklist')
     .upsert(
-      [{ image_id, user_label }],
+      [{ image_id, user_label, user_name }],
       { onConflict: 'image_id' }
     )
 
@@ -177,12 +174,13 @@ app.get('/export/:folder_id', async (req, res) => {
   if (error) return res.status(500).json({ message: 'Gagal export', detail: error })
 
   const rows = data
-    .filter(item => item.images !== null)
-    .map(item => ({
-      filename: item.images.filename,
-      cvat_label: item.images.cvat_label,
-      user_label: item.user_label
-    }))
+  .filter(item => item.images !== null)
+  .map(item => ({
+    filename: item.images.filename,
+    cvat_label: item.images.cvat_label,
+    user_label: item.user_label,
+    user_name: item.user_name
+  }))
 
   const ws = XLSX.utils.json_to_sheet(rows)
   const wb = XLSX.utils.book_new()
