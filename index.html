@@ -28,26 +28,6 @@
 
 
     <!-- Folder grid -->
-<div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
-  <select id="user-select" style="
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 10px;
-    border: 1.5px solid #c8ddb8;
-    background: #fff;
-    color: #1a5c2a;
-    cursor: pointer;
-    outline: none;
-  ">
-    <option value="">-- Pilih Nama --</option>
-    <option value="pak_jos">Pak Jos</option>
-    <option value="pak_handy">Pak Handy</option>
-    <option value="pak_aris">Pak Aris</option>
-    <option value="pak_legiso">Pak Legiso</option>
-  </select>
-</div>
-
   <select id="folder-select" style="width:100%; padding:10px; font-size:14px; border:none; outline:none; background:transparent;">
     <option value="all">Semua Folder</option>
   </select>
@@ -100,18 +80,38 @@
 
       <!-- Right: checklist -->
       <div class="check-col">
-        <div class="section-label">Checklist label</div>
-        <button class="check-btn pruning-btn" id="btn-pruning" data-label="pruning">
-          <span>Pruning</span>
-          <div class="check-dot" id="dot-pruning"></div>
-        </button>
-        <button class="check-btn under-btn" id="btn-under" data-label="underpruning">
-          <span>Under pruning</span>
-          <div class="check-dot" id="dot-under"></div>
-        </button>
-      </div>
-    </div>
-  </div>
+  <select id="user-select" style="
+    width: 100%;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1.5px solid #c8ddb8;
+    background: #fff;
+    color: #1a5c2a;
+    cursor: pointer;
+    outline: none;
+    margin-bottom: 4px;
+  ">
+    <option value="">-- Pilih Nama --</option>
+    <option value="pak_jos">Pak Jos</option>
+    <option value="pak_handy">Pak Handy</option>
+    <option value="pak_aris">Pak Aris</option>
+    <option value="pak_legiso">Pak Legiso</option>
+  </select>
+
+  <div class="section-label">Checklist label</div>
+  <button class="check-btn pruning-btn" id="btn-pruning" data-label="pruning">
+    <span>Pruning</span>
+    <div class="check-dot" id="dot-pruning"></div>
+  </button>
+  <button class="check-btn under-btn" id="btn-under" data-label="underpruning">
+    <span>Under pruning</span>
+    <div class="check-dot" id="dot-under"></div>
+  </button>
+</div>
+</div>
+</div>
 
   <!-- Toast notification -->
   <div class="toast" id="toast"></div>
