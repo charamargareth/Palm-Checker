@@ -160,29 +160,73 @@ const XLSX = require('xlsx')
 app.get('/export/:folder_id', async (req, res) => {
   const { folder_id } = req.params
 
-  // Ambil nama folder
   const { data: folderData } = await supabase
     .from('folders')
     .select('name')
     .eq('id', folder_id)
     .single()
 
-  // Ambil semua gambar di folder ini yang sudah di-checklist
-  const { data, error } = await supabase
+  // Ambil semua gambar di folder ini
+  const { data: images, error: imgError } = await supabase
+    .from('images')
+    .select('id, filename, cvat_label')
+    .eq('folder_id', folder_id)
+
+  if (imgError) return res.status(500).json({ message: 'Gagal ambil images', detail: imgError })
+
+  // Ambil semua checklist untuk gambar di folder ini
+  const imageIds = images.map(img => img.id)
+  const { data: checklists, error: checkError } = await supabase
     .from('checklist')
-    .select('image_id, user_label, images(filename, cvat_label, folder_id)')
-    .eq('images.folder_id', folder_id)
+    .select('image_id, user_name, user_label')
+    .in('image_id', imageIds)
 
-  if (error) return res.status(500).json({ message: 'Gagal export', detail: error })
+  if (checkError) return res.status(500).json({ message: 'Gagal ambil checklist', detail: checkError })
 
-  const rows = data
-  .filter(item => item.images !== null)
-  .map(item => ({
-    filename: item.images.filename,
-    cvat_label: item.images.cvat_label,
-    user_label: item.user_label,
-    user_name: item.user_name
-  }))
+  const users = ['pak_jos', 'pak_handy', 'pak_aris', 'pak_legiso']
+
+  const rows = images.map(img => {
+    const votes = checklists.filter(c => c.image_id === img.id)
+
+    const row = {
+      filename: img.filename,
+      cvat_label: img.cvat_label,
+    }
+
+    // Kolom per user
+    users.forEach(user => {
+      const vote = votes.find(v => v.user_name === user)
+      row[user.replace('pak_', 'Pak ')] = vote ? vote.user_label : '-'
+    })
+
+    // Majority vote
+    const pruningCount = votes.filter(v => v.user_label === 'pruning').length
+    const underpruningCount = votes.filter(v => v.user_label === 'underpruning').length
+
+    if (pruningCount === 0 && underpruningCount === 0) {
+      row['majority_vote'] = '-'
+    } else if (pruningCount > underpruningCount) {
+      row['majority_vote'] = 'pruning'
+    } else if (underpruningCount > pruningCount) {
+      row['majority_vote'] = 'underpruning'
+    } else {
+      row['majority_vote'] = 'tie'
+    }
+
+    return row
+  })
+
+  const ws = XLSX.utils.json_to_sheet(rows)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Labels')
+
+  const folderName = folderData?.name || `folder_${folder_id}`
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  res.setHeader('Content-Disposition', `attachment; filename="${folderName}.xlsx"`)
+  res.send(buf)
+})
 
   const ws = XLSX.utils.json_to_sheet(rows)
   const wb = XLSX.utils.book_new()
