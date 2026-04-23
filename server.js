@@ -215,6 +215,18 @@ app.get('/export/:folder_id', async (req, res) => {
 
     return row
   })
+  
+  const ws = XLSX.utils.json_to_sheet(rows)
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Labels')
+
+  const folderName = folderData?.name || `folder_${folder_id}`
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  res.setHeader('Content-Disposition', `attachment; filename="${folderName}.xlsx"`)
+  res.send(buf)
+})
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
