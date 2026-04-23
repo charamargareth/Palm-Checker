@@ -110,9 +110,11 @@ app.delete('/submit', async (req, res) => {
   }
 
   const { error } = await supabase
-    .from('checklist')
-    .delete()
-    .eq('image_id', image_id)
+  .from('checklist')
+  .upsert(
+    [{ image_id, user_label, user_name }],
+    { onConflict: 'image_id,user_name' }
+  )
 
   if (error) {
     console.error('ERROR DELETE /submit:', error)
@@ -192,6 +194,24 @@ app.get('/export/:folder_id', async (req, res) => {
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
   res.setHeader('Content-Disposition', `attachment; filename="${folderName}.xlsx"`)
   res.send(buf)
+})
+
+app.get('/votes/:image_id', async (req, res) => {
+  const { image_id } = req.params
+
+  const { data, error } = await supabase
+    .from('checklist')
+    .select('user_name, user_label')
+    .eq('image_id', image_id)
+
+  if (error) return res.status(500).json({ message: 'Gagal ambil votes', detail: error })
+
+  const votes = {
+    pruning: data.filter(d => d.user_label === 'pruning').map(d => d.user_name),
+    underpruning: data.filter(d => d.user_label === 'underpruning').map(d => d.user_name),
+  }
+
+  res.json(votes)
 })
 
 const PORT = process.env.PORT || 3000
