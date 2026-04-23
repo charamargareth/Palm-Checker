@@ -196,24 +196,6 @@ app.get('/export/:folder_id', async (req, res) => {
   res.send(buf)
 })
 
-app.get('/votes/:image_id', async (req, res) => {
-  const { image_id } = req.params
-
-  const { data, error } = await supabase
-    .from('checklist')
-    .select('user_name, user_label')
-    .eq('image_id', image_id)
-
-  if (error) return res.status(500).json({ message: 'Gagal ambil votes', detail: error })
-
-  const votes = {
-    pruning: data.filter(d => d.user_label === 'pruning').map(d => d.user_name),
-    underpruning: data.filter(d => d.user_label === 'underpruning').map(d => d.user_name),
-  }
-
-  res.json(votes)
-})
-
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)
