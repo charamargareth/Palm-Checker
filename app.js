@@ -155,6 +155,10 @@ function renderImage() {
   updateLabelButtons(activeLabel)
   updateCheckedBadge(activeLabel)
   updateNavButtons()
+
+  if (filteredImages.length > 0) {
+    loadVotes(filteredImages[currentIndex].id)
+  }
 }
 
 // ==========================
@@ -331,6 +335,25 @@ document.getElementById('btn-prev').onclick = () => {
   if (currentIndex > 0) {
     currentIndex--
     renderImage()
+  }
+}
+
+async function loadVotes(image_id) {
+  try {
+    const res = await fetch(`/votes/${image_id}`)
+    const votes = await res.json()
+
+    const pruningNames = votes.pruning.length > 0 
+      ? votes.pruning.map(n => n.replace('pak_', 'Pak ')).join(', ') 
+      : '-'
+    const underpruningNames = votes.underpruning.length > 0 
+      ? votes.underpruning.map(n => n.replace('pak_', 'Pak ')).join(', ') 
+      : '-'
+
+    document.getElementById('vote-pruning').innerText = pruningNames
+    document.getElementById('vote-underpruning').innerText = underpruningNames
+  } catch (err) {
+    console.error('❌ loadVotes error:', err)
   }
 }
 

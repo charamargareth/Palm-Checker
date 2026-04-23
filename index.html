@@ -78,9 +78,9 @@
         </div>
       </div>
 
-      <!-- Right: checklist -->
+     <!-- Right: checklist -->
       <div class="check-col">
-  <select id="user-select" style="
+<select id="user-select" style="
     width: 100%;
     padding: 8px 14px;
     font-size: 13px;
@@ -93,22 +93,45 @@
     outline: none;
     margin-bottom: 4px;
   ">
-    <option value="">-- Pilih Nama --</option>
-    <option value="pak_jos">Pak Jos</option>
-    <option value="pak_handy">Pak Handy</option>
-    <option value="pak_aris">Pak Aris</option>
-    <option value="pak_legiso">Pak Legiso</option>
-  </select>
+<option value="">-- Pilih Nama --</option>
+<option value="pak_jos">Pak Jos</option>
+<option value="pak_handy">Pak Handy</option>
+<option value="pak_aris">Pak Aris</option>
+<option value="pak_legiso">Pak Legiso</option>
+</select>
+<div class="section-label">Checklist label</div>
+<button class="check-btn pruning-btn" id="btn-pruning" data-label="pruning">
+<span>Pruning</span>
+<div class="check-dot" id="dot-pruning"></div>
+</button>
+<button class="check-btn under-btn" id="btn-under" data-label="underpruning">
+<span>Under pruning</span>
+<div class="check-dot" id="dot-under"></div>
+</button>
 
-  <div class="section-label">Checklist label</div>
-  <button class="check-btn pruning-btn" id="btn-pruning" data-label="pruning">
-    <span>Pruning</span>
-    <div class="check-dot" id="dot-pruning"></div>
-  </button>
-  <button class="check-btn under-btn" id="btn-under" data-label="underpruning">
-    <span>Under pruning</span>
-    <div class="check-dot" id="dot-under"></div>
-  </button>
+<div id="vote-result" style="margin-top: 10px;">
+  <div class="section-label">Hasil Voting</div>
+  <div style="
+    background: #eaf3de;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border: 1.5px solid #C0DD97;
+  ">
+    <div style="font-size: 11px; font-weight: 700; color: #27500A; margin-bottom: 4px;">Pruning</div>
+    <div id="vote-pruning" style="font-size: 12px; color: #3B6D11;">-</div>
+  </div>
+  <div style="
+    background: #faece7;
+    border-radius: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid #F5C4B3;
+  ">
+    <div style="font-size: 11px; font-weight: 700; color: #712B13; margin-bottom: 4px;">Underpruning</div>
+    <div id="vote-underpruning" style="font-size: 12px; color: #993C1D;">-</div>
+  </div>
+</div>
+
 </div>
 </div>
 </div>
