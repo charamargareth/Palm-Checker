@@ -10,6 +10,12 @@ let activeFolderId = 'all'
 // INIT
 // ==========================
 async function init() {
+  const savedUser = localStorage.getItem('activeUser')
+  if (savedUser) {
+    activeUser = savedUser
+    document.getElementById('user-select').value = savedUser
+  }
+
   await loadChecklist()
   await loadFolders()
   await loadImages()
@@ -45,8 +51,8 @@ document.getElementById('folder-select').addEventListener('change', (e) => {
 })
 document.getElementById('user-select').addEventListener('change', (e) => {
   activeUser = e.target.value
+  localStorage.setItem('activeUser', activeUser)
 })
-
 // ==========================
 // LOAD IMAGES
 // ==========================
