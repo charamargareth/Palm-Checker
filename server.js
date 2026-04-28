@@ -104,24 +104,46 @@ app.post('/submit', async (req, res) => {
 // DELETE label (untuk toggle off / uncheck)
 // ✅ FIX: Endpoint baru yang dibutuhkan app.js
 // ==========================
-app.delete('/submit', async (req, res) => {
-  const { image_id } = req.body
+app.post('/submit', async (req, res) => {
+  const { image_id, user_label, user_name } = req.body
 
-  // ✅ FIX: Validasi input
-  if (!image_id) {
-    return res.status(400).json({ message: 'image_id wajib diisi' })
+  if (!image_id || !user_label || !user_name) {
+    return res.status(400).json({ message: 'image_id, user_label, dan user_name wajib diisi' })
   }
 
- const { error } = await supabase
-  .from('checklist')
-  .upsert(
-    [{ image_id, user_label, user_name }],
-    { onConflict: 'image_id, user_name' }
-  )
+  const validLabels = ['pruning', 'underpruning']
+  if (!validLabels.includes(user_label)) {
+    return res.status(400).json({ message: 'user_label tidak valid.' })
+  }
+
+  // Cek apakah sudah ada
+  const { data: existing } = await supabase
+    .from('checklist')
+    .select('id')
+    .eq('image_id', image_id)
+    .eq('user_name', user_name)
+    .single()
+
+  let error
+  if (existing) {
+    // Update
+    const { error: updateError } = await supabase
+      .from('checklist')
+      .update({ user_label })
+      .eq('image_id', image_id)
+      .eq('user_name', user_name)
+    error = updateError
+  } else {
+    // Insert baru
+    const { error: insertError } = await supabase
+      .from('checklist')
+      .insert([{ image_id, user_label, user_name }])
+    error = insertError
+  }
 
   if (error) {
-    console.error('ERROR DELETE /submit:', error)
-    return res.status(500).json({ message: 'Gagal menghapus label', detail: error })
+    console.error('ERROR POST /submit:', error)
+    return res.status(500).json({ message: 'Gagal menyimpan label', detail: error })
   }
 
   res.json({ success: true })
