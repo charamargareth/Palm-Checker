@@ -70,37 +70,6 @@ app.get('/checklist', async (req, res) => {
 })
 
 // ==========================
-// POST submit label (upsert — tidak akan duplikat)
-// ✅ FIX: Ganti insert biasa dengan upsert
-// ==========================
-app.post('/submit', async (req, res) => {
-  const { image_id, user_label, user_name } = req.body
-
-  if (!image_id || !user_label || !user_name) {
-    return res.status(400).json({ message: 'image_id, user_label, dan user_name wajib diisi' })
-  }
-
-  const validLabels = ['pruning', 'underpruning']
-  if (!validLabels.includes(user_label)) {
-    return res.status(400).json({ message: `user_label tidak valid.` })
-  }
-
-  const { error } = await supabase
-    .from('checklist')
-    .upsert(
-      [{ image_id, user_label, user_name }],
-      { onConflict: 'image_id' }
-    )
-
-  if (error) {
-    console.error('ERROR POST /submit:', error)
-    return res.status(500).json({ message: 'Gagal menyimpan label', detail: error })
-  }
-
-  res.json({ success: true })
-})
-
-// ==========================
 // DELETE label (untuk toggle off / uncheck)
 // ✅ FIX: Endpoint baru yang dibutuhkan app.js
 // ==========================
