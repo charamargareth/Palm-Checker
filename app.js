@@ -49,9 +49,13 @@ document.getElementById('folder-select').addEventListener('change', (e) => {
   activeFolderId = e.target.value
   applyFilterAndFolder()
 })
-document.getElementById('user-select').addEventListener('change', (e) => {
+document.getElementById('user-select').addEventListener('change', async (e) => {
   activeUser = e.target.value
   localStorage.setItem('activeUser', activeUser)
+  checked = {}
+  await loadChecklist()
+  renderImage()
+  updateHeader()
 })
 // ==========================
 // LOAD IMAGES
@@ -75,9 +79,10 @@ async function loadImages() {
 // ==========================
 async function loadChecklist() {
   try {
-    const res = await fetch('/checklist')
+    if (!activeUser) return
+
+    const res = await fetch(`/checklist?user=${activeUser}`)
     const data = await res.json()
-    console.log("DATA checklist:", data)
 
     checked = {}
     data.forEach(item => {
