@@ -54,9 +54,12 @@ app.get('/images', async (req, res) => {
 // ✅ FIX: Endpoint baru yang dibutuhkan app.js
 // ==========================
 app.get('/checklist', async (req, res) => {
-  const { data, error } = await supabase
-    .from('checklist')
-    .select('image_id, user_label')
+  const { user } = req.query
+
+  let query = supabase.from('checklist').select('image_id, user_label')
+  if (user) query = query.eq('user_name', user)
+
+  const { data, error } = await query
 
   if (error) {
     console.error('ERROR GET /checklist:', error)
@@ -109,11 +112,11 @@ app.delete('/submit', async (req, res) => {
     return res.status(400).json({ message: 'image_id wajib diisi' })
   }
 
-  const { error } = await supabase
+ const { error } = await supabase
   .from('checklist')
   .upsert(
     [{ image_id, user_label, user_name }],
-    { onConflict: 'image_id,user_name' }
+    { onConflict: 'image_id, user_name' }
   )
 
   if (error) {
@@ -215,7 +218,7 @@ app.get('/export/:folder_id', async (req, res) => {
 
     return row
   })
-  
+
   const ws = XLSX.utils.json_to_sheet(rows)
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Labels')
