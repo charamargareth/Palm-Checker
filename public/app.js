@@ -6,6 +6,10 @@ let checked = {}
 let activeFilter = 'all'
 let activeFolderId = 'all'
 
+// Simpan posisi terakhir per filter per user
+// { 'all': 32, 'pruning': 5, 'underpruning': 2, 'ragu': 0 }
+let lastPosition = { all: 0, pruning: 0, underpruning: 0, ragu: 0 }
+
 const TOTAL_SEMUA = 1263
 
 // ==========================
@@ -56,6 +60,7 @@ document.getElementById('user-select').addEventListener('change', async (e) => {
   activeUser = e.target.value
   localStorage.setItem('activeUser', activeUser)
   checked = {}
+  lastPosition = { all: 0, pruning: 0, underpruning: 0, ragu: 0 }
   await loadChecklist()
   renderImage()
   updateHeader()
@@ -89,13 +94,56 @@ async function loadChecklist() {
     data.forEach(item => {
       checked[item.image_id] = item.user_label
     })
+    // Hitung lastPosition dari data checklist
+    recalcLastPosition()
   } catch (err) {
     console.error('❌ loadChecklist error:', err)
   }
 }
 
 // ==========================
-// UPDATE PROGRESS BAR
+// HITUNG POSISI TERAKHIR PER FILTER
+// ==========================
+function recalcLastPosition() {
+  lastPosition = { all: 0, pruning: 0, underpruning: 0, ragu: 0 }
+
+  // Untuk filter 'all': cari index terakhir di images yang sudah dichecklist
+  const allFiltered = getFilteredImages('all', 'all')
+  for (let i = allFiltered.length - 1; i >= 0; i--) {
+    if (checked[allFiltered[i].id]) {
+      lastPosition['all'] = i
+      break
+    }
+  }
+
+  // Untuk filter pruning, underpruning, ragu
+  for (const filter of ['pruning', 'underpruning', 'ragu']) {
+    const filtered = getFilteredImages(filter, 'all')
+    for (let i = filtered.length - 1; i >= 0; i--) {
+      if (checked[filtered[i].id]) {
+        lastPosition[filter] = i
+        break
+      }
+    }
+  }
+}
+
+// ==========================
+// HELPER: GET FILTERED IMAGES
+// ==========================
+function getFilteredImages(filter, folderId) {
+  let result = images
+  if (folderId !== 'all') {
+    result = result.filter(img => String(img.folder_id) === String(folderId))
+  }
+  if (filter !== 'all') {
+    result = result.filter(img => img.cvat_label === filter)
+  }
+  return result
+}
+
+// ==========================
+// UPDATE PROGRESS BAR (mengikuti filter aktif)
 // ==========================
 function updateProgressBar() {
   const container = document.getElementById('progress-container')
@@ -103,6 +151,7 @@ function updateProgressBar() {
   const text = document.getElementById('progress-text')
   const pct = document.getElementById('progress-pct')
   const last = document.getElementById('progress-last')
+  const btnJump = document.getElementById('btn-jump')
 
   if (!activeUser) {
     container.style.display = 'none'
@@ -111,23 +160,45 @@ function updateProgressBar() {
 
   container.style.display = 'block'
 
-  const labeledCount = Object.keys(checked).length
-  const percentage = Math.min((labeledCount / TOTAL_SEMUA) * 100, 100)
+  const total = filteredImages.length
+  if (total === 0) {
+    bar.style.width = '0%'
+    text.innerText = '0 dari 0'
+    pct.innerText = '0%'
+    last.innerText = 'Tidak ada gambar'
+    return
+  }
+
+  const pos = lastPosition[activeFilter] || 0
+  const displayPos = total > 0 ? Math.min(pos + 1, total) : 0
+  const percentage = total > 0 ? (displayPos / total) * 100 : 0
 
   bar.style.width = `${percentage}%`
-  text.innerText = `${labeledCount} dari ${TOTAL_SEMUA}`
+  text.innerText = `ke-${displayPos} dari ${total}`
   pct.innerText = `${percentage.toFixed(1)}%`
 
-  // Cari frame terakhir yang dilabel
-  const lastImageId = Object.keys(checked).pop()
-  if (lastImageId) {
-    const lastImg = images.find(img => String(img.id) === String(lastImageId))
-    if (lastImg) {
-      const labelText = checked[lastImageId] === 'pruning' ? 'Pruning' : 'Underpruning'
-      last.innerText = `Terakhir: ${lastImg.filename.substring(0, 20)}... (${labelText})`
+  // Label filter untuk display
+  const filterLabel = {
+    all: 'Semua',
+    pruning: 'Pruning',
+    underpruning: 'Underpruning',
+    ragu: 'Ragu'
+  }[activeFilter]
+
+  // Cari nama file terakhir
+  const lastImg = filteredImages[pos]
+  if (lastImg && checked[lastImg.id]) {
+    const labelText = checked[lastImg.id] === 'pruning' ? 'Pruning' :
+                      checked[lastImg.id] === 'underpruning' ? 'Underpruning' : 'Ragu'
+    last.innerText = `Terakhir [${filterLabel}]: frame ke-${displayPos} (${labelText})`
+    btnJump.style.display = 'block'
+    btnJump.onclick = () => {
+      currentIndex = pos
+      renderImage()
     }
   } else {
-    last.innerText = 'Belum ada label'
+    last.innerText = `Belum ada label di filter ${filterLabel}`
+    btnJump.style.display = 'none'
   }
 }
 
@@ -146,6 +217,7 @@ function applyFilterAndFolder() {
   currentIndex = 0
   renderImage()
   updateHeader()
+  updateProgressBar()
 }
 
 // ==========================
@@ -273,6 +345,16 @@ async function selectLabel(label) {
     await submitLabel(img.id, label, activeUser)
     checked[img.id] = label
     showToast(label)
+    // Update lastPosition untuk filter yang aktif
+    if (currentIndex > (lastPosition[activeFilter] || 0)) {
+      lastPosition[activeFilter] = currentIndex
+    }
+    // Update juga lastPosition 'all'
+    const allFiltered = getFilteredImages('all', activeFolderId)
+    const globalIdx = allFiltered.findIndex(i => i.id === img.id)
+    if (globalIdx > (lastPosition['all'] || 0)) {
+      lastPosition['all'] = globalIdx
+    }
   }
 
   const activeLabel = checked[img.id] || null

@@ -22,11 +22,11 @@
       </div>
       <div class="header-badge">
         <div class="badge-count" id="checked-count">0</div>
-        <div class="badge-label" id="checked-total">/ 12 dicek</div>
+        <div class="badge-label" id="checked-total">/ 0 dicek</div>
       </div>
     </div>
 
-    <!-- Folder grid -->
+    <!-- Folder select -->
     <select id="folder-select" style="width:100%; padding:10px; font-size:14px; border:none; outline:none; background:transparent;">
       <option value="all">Semua Folder</option>
     </select>
@@ -90,7 +90,7 @@
           color: #1a5c2a;
           cursor: pointer;
           outline: none;
-          margin-bottom: 4px;
+          margin-bottom: 8px;
         ">
           <option value="">-- Pilih Nama --</option>
           <option value="pak_jos">Pak Jos</option>
@@ -101,30 +101,44 @@
         </select>
 
         <!-- Progress Bar -->
-        <div id="progress-container" style="
-          display: none;
-          margin: 10px 0 14px;
-          background: #f0f7eb;
-          border-radius: 10px;
-          padding: 10px 12px;
-          border: 1.5px solid #c8ddb8;
-        ">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:11px; font-weight:600; color:#1a5c2a;">Progress Labeling</span>
-            <span id="progress-text" style="font-size:11px; font-weight:700; color:#1a5c2a;">0 dari 1263</span>
-          </div>
-          <div style="background:#d4eac4; border-radius:99px; height:8px; overflow:hidden;">
-            <div id="progress-bar" style="
-              height:100%;
-              width:0%;
-              background: linear-gradient(90deg, #3B6D11, #5a9e20);
-              border-radius:99px;
-              transition: width 0.4s ease;
-            "></div>
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-top:6px;">
-            <span id="progress-pct" style="font-size:10px; color:#5a7a4a;">0%</span>
-            <span id="progress-last" style="font-size:10px; color:#5a7a4a; font-style:italic;">Belum ada label</span>
+        <div id="progress-container" style="display:none; margin-bottom:14px;">
+          <div style="
+            background: #f0f7eb;
+            border-radius: 10px;
+            padding: 10px 12px;
+            border: 1.5px solid #c8ddb8;
+          ">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+              <span style="font-size:11px; font-weight:700; color:#1a5c2a;" id="progress-filter-label">Progress Semua</span>
+              <span style="font-size:11px; font-weight:700; color:#1a5c2a;" id="progress-text">ke-0 dari 0</span>
+            </div>
+            <div style="background:#d4eac4; border-radius:99px; height:8px; overflow:hidden;">
+              <div id="progress-bar" style="
+                height:100%;
+                width:0%;
+                background: linear-gradient(90deg, #3B6D11, #5a9e20);
+                border-radius:99px;
+                transition: width 0.4s ease;
+              "></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+              <span id="progress-pct" style="font-size:10px; color:#5a7a4a;">0%</span>
+              <span id="progress-last" style="font-size:10px; color:#5a7a4a; font-style:italic; text-align:right; max-width:70%;">Belum ada label</span>
+            </div>
+            <!-- Tombol lompat ke posisi terakhir -->
+            <button id="btn-jump" onclick="" style="
+              display: none;
+              margin-top: 8px;
+              width: 100%;
+              padding: 6px;
+              background: #1a5c2a;
+              color: #fff;
+              border: none;
+              border-radius: 8px;
+              font-size: 11px;
+              font-weight: 600;
+              cursor: pointer;
+            ">▶ Lanjut dari terakhir</button>
           </div>
         </div>
 
