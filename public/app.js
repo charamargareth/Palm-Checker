@@ -61,8 +61,10 @@ document.getElementById('user-select').addEventListener('change', async (e) => {
   localStorage.setItem('activeUser', activeUser)
   checked = {}
   lastPosition = { all: 0, pruning: 0, underpruning: 0, ragu: 0 }
+  currentIndex = 0
   await loadChecklist()
-  renderImage()
+  recalcLastPosition()
+  applyFilterAndFolder()
   updateHeader()
   updateProgressBar()
 })
