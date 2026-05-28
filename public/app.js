@@ -2,9 +2,11 @@ let activeUser = ''
 let images = []
 let filteredImages = []
 let currentIndex = 0
-let checked = {}       // { image_id: user_label }
+let checked = {}
 let activeFilter = 'all'
 let activeFolderId = 'all'
+
+const TOTAL_SEMUA = 1263
 
 // ==========================
 // INIT
@@ -20,16 +22,16 @@ async function init() {
   await loadFolders()
   await loadImages()
   updateFilterButtons()
+  updateProgressBar()
 }
 
 // ==========================
-// LOAD FOLDERS → populate <select>
+// LOAD FOLDERS
 // ==========================
 async function loadFolders() {
   try {
     const res = await fetch('/folders')
     const folders = await res.json()
-
     const select = document.getElementById('folder-select')
     folders.forEach(f => {
       const opt = document.createElement('option')
@@ -49,6 +51,7 @@ document.getElementById('folder-select').addEventListener('change', (e) => {
   activeFolderId = e.target.value
   applyFilterAndFolder()
 })
+
 document.getElementById('user-select').addEventListener('change', async (e) => {
   activeUser = e.target.value
   localStorage.setItem('activeUser', activeUser)
@@ -56,7 +59,9 @@ document.getElementById('user-select').addEventListener('change', async (e) => {
   await loadChecklist()
   renderImage()
   updateHeader()
+  updateProgressBar()
 })
+
 // ==========================
 // LOAD IMAGES
 // ==========================
@@ -64,8 +69,6 @@ async function loadImages() {
   try {
     const res = await fetch('/images')
     const data = await res.json()
-    console.log("DATA images:", data)
-
     images = data
     applyFilterAndFolder()
     updateHeader()
@@ -80,10 +83,8 @@ async function loadImages() {
 async function loadChecklist() {
   try {
     if (!activeUser) return
-
     const res = await fetch(`/checklist?user=${activeUser}`)
     const data = await res.json()
-
     checked = {}
     data.forEach(item => {
       checked[item.image_id] = item.user_label
@@ -94,21 +95,53 @@ async function loadChecklist() {
 }
 
 // ==========================
-// FILTER + FOLDER — diterapkan bersama
+// UPDATE PROGRESS BAR
+// ==========================
+function updateProgressBar() {
+  const container = document.getElementById('progress-container')
+  const bar = document.getElementById('progress-bar')
+  const text = document.getElementById('progress-text')
+  const pct = document.getElementById('progress-pct')
+  const last = document.getElementById('progress-last')
+
+  if (!activeUser) {
+    container.style.display = 'none'
+    return
+  }
+
+  container.style.display = 'block'
+
+  const labeledCount = Object.keys(checked).length
+  const percentage = Math.min((labeledCount / TOTAL_SEMUA) * 100, 100)
+
+  bar.style.width = `${percentage}%`
+  text.innerText = `${labeledCount} dari ${TOTAL_SEMUA}`
+  pct.innerText = `${percentage.toFixed(1)}%`
+
+  // Cari frame terakhir yang dilabel
+  const lastImageId = Object.keys(checked).pop()
+  if (lastImageId) {
+    const lastImg = images.find(img => String(img.id) === String(lastImageId))
+    if (lastImg) {
+      const labelText = checked[lastImageId] === 'pruning' ? 'Pruning' : 'Underpruning'
+      last.innerText = `Terakhir: ${lastImg.filename.substring(0, 20)}... (${labelText})`
+    }
+  } else {
+    last.innerText = 'Belum ada label'
+  }
+}
+
+// ==========================
+// FILTER + FOLDER
 // ==========================
 function applyFilterAndFolder() {
   let result = images
-
-  // Filter folder
   if (activeFolderId !== 'all') {
     result = result.filter(img => String(img.folder_id) === String(activeFolderId))
   }
-
-  // Filter label
   if (activeFilter !== 'all') {
     result = result.filter(img => img.cvat_label === activeFilter)
   }
-
   filteredImages = result
   currentIndex = 0
   renderImage()
@@ -126,9 +159,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   })
 })
 
-// ==========================
-// UPDATE FILTER BUTTON ACTIVE (sesuai CSS: active-all, active-pruning, dll)
-// ==========================
 function updateFilterButtons() {
   document.querySelectorAll('.filter-btn').forEach(btn => {
     const filter = btn.dataset.filter
@@ -157,11 +187,9 @@ function renderImage() {
   const img = filteredImages[currentIndex]
   document.getElementById('main-photo').src = img.image_url
   document.getElementById('frame-name').innerText = img.filename
-  document.getElementById('frame-counter').innerText =
-    `${currentIndex + 1} / ${filteredImages.length}`
+  document.getElementById('frame-counter').innerText = `${currentIndex + 1} / ${filteredImages.length}`
 
   updateSlider()
-
   const activeLabel = checked[img.id] || null
   updateLabelButtons(activeLabel)
   updateCheckedBadge(activeLabel)
@@ -169,18 +197,16 @@ function renderImage() {
 }
 
 // ==========================
-// SLIDER — sync dengan currentIndex
+// SLIDER
 // ==========================
 function updateSlider() {
   const slider = document.getElementById('img-slider')
   const sliderNum = document.getElementById('slider-num')
   const total = filteredImages.length
-
   slider.min = 0
   slider.max = total > 0 ? total - 1 : 0
   slider.value = currentIndex
   slider.disabled = total === 0
-
   sliderNum.innerText = total > 0 ? currentIndex + 1 : 0
 }
 
@@ -190,14 +216,13 @@ document.getElementById('img-slider').addEventListener('input', (e) => {
 })
 
 // ==========================
-// UPDATE LABEL BUTTONS (sesuai CSS: .selected + .check-dot.checked)
+// UPDATE LABEL BUTTONS
 // ==========================
 function updateLabelButtons(activeLabel) {
   const btnPruning = document.getElementById('btn-pruning')
   const btnUnder = document.getElementById('btn-under')
   const dotPruning = document.getElementById('dot-pruning')
   const dotUnder = document.getElementById('dot-under')
-
   btnPruning.classList.toggle('selected', activeLabel === 'pruning')
   btnUnder.classList.toggle('selected', activeLabel === 'underpruning')
   dotPruning.classList.toggle('checked', activeLabel === 'pruning')
@@ -205,24 +230,22 @@ function updateLabelButtons(activeLabel) {
 }
 
 // ==========================
-// UPDATE CHECKED BADGE DI FOTO (sesuai CSS: .checked-badge.pruning dll)
+// UPDATE CHECKED BADGE
 // ==========================
 function updateCheckedBadge(activeLabel) {
   const badge = document.getElementById('checked-badge')
-
   if (!activeLabel) {
     badge.style.display = 'none'
     badge.className = 'checked-badge'
     return
   }
-
   badge.style.display = 'block'
   badge.className = `checked-badge ${activeLabel}`
   badge.innerText = activeLabel === 'pruning' ? '✓ Pruning' : '✓ Underpruning'
 }
 
 // ==========================
-// UPDATE NAV BUTTONS (disable di ujung, sesuai CSS: .nav-btn:disabled)
+// UPDATE NAV BUTTONS
 // ==========================
 function updateNavButtons() {
   document.getElementById('btn-prev').disabled = currentIndex === 0
@@ -231,19 +254,17 @@ function updateNavButtons() {
 }
 
 // ==========================
-// LABEL CLICK — toggle support
+// LABEL CLICK
 // ==========================
 async function selectLabel(label) {
   if (!activeUser) {
     alert('Pilih nama dulu sebelum checklist!')
     return
   }
-
   const img = filteredImages[currentIndex]
   if (!img) return
 
   const currentLabel = checked[img.id]
-
   if (currentLabel === label) {
     await deleteLabel(img.id)
     delete checked[img.id]
@@ -258,6 +279,7 @@ async function selectLabel(label) {
   updateLabelButtons(activeLabel)
   updateCheckedBadge(activeLabel)
   updateHeader()
+  updateProgressBar()
 }
 
 // ==========================
@@ -278,7 +300,7 @@ async function submitLabel(image_id, user_label, user_name) {
 }
 
 // ==========================
-// DELETE /submit — uncheck
+// DELETE /submit
 // ==========================
 async function deleteLabel(image_id) {
   try {
@@ -295,29 +317,25 @@ async function deleteLabel(image_id) {
 }
 
 // ==========================
-// TOAST (sesuai CSS: .toast .pruning .underpruning)
+// TOAST
 // ==========================
 function showToast(label) {
   const toast = document.getElementById('toast')
   toast.classList.remove('show', 'pruning', 'underpruning')
-
   if (!label) return
-
   toast.className = `toast ${label}`
   toast.innerText = label === 'pruning' ? '✓ Ditandai: Pruning' : '✓ Ditandai: Underpruning'
-  void toast.offsetWidth // reflow untuk reset animasi
+  void toast.offsetWidth
   toast.classList.add('show')
-
   setTimeout(() => toast.classList.remove('show'), 2000)
 }
 
 // ==========================
-// UPDATE HEADER COUNT + TOTAL
+// UPDATE HEADER COUNT
 // ==========================
 function updateHeader() {
   const total = filteredImages.length
   const doneCount = filteredImages.filter(img => checked[img.id]).length
-
   document.getElementById('checked-count').innerText = doneCount
   document.getElementById('checked-total').innerText = `/ ${total} dicek`
 }
@@ -337,7 +355,6 @@ document.getElementById('btn-next').onclick = () => {
     renderImage()
   }
 }
-
 document.getElementById('btn-prev').onclick = () => {
   if (currentIndex > 0) {
     currentIndex--

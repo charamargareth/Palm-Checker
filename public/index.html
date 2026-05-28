@@ -26,24 +26,23 @@
       </div>
     </div>
 
-
     <!-- Folder grid -->
-  <select id="folder-select" style="width:100%; padding:10px; font-size:14px; border:none; outline:none; background:transparent;">
-    <option value="all">Semua Folder</option>
-  </select>
+    <select id="folder-select" style="width:100%; padding:10px; font-size:14px; border:none; outline:none; background:transparent;">
+      <option value="all">Semua Folder</option>
+    </select>
 
-  <button id="btn-export" onclick="exportFolder()" style="
-  margin: 8px 0 14px;
-  width: 100%;
-  padding: 10px;
-  background: #1a5c2a;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-">⬇ Export Folder ini</button>
+    <button id="btn-export" onclick="exportFolder()" style="
+      margin: 8px 0 14px;
+      width: 100%;
+      padding: 10px;
+      background: #1a5c2a;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    ">⬇ Export Folder ini</button>
 
     <!-- Filter buttons -->
     <div class="filter-row" id="filter-row">
@@ -78,40 +77,69 @@
         </div>
       </div>
 
-     <!-- Right: checklist -->
+      <!-- Right: checklist -->
       <div class="check-col">
-<select id="user-select" style="
-    width: 100%;
-    padding: 8px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 10px;
-    border: 1.5px solid #c8ddb8;
-    background: #fff;
-    color: #1a5c2a;
-    cursor: pointer;
-    outline: none;
-    margin-bottom: 4px;
-  ">
-<option value="">-- Pilih Nama --</option>
-<option value="pak_jos">Pak Jos</option>
-<option value="pak_handy">Pak Handy</option>
-<option value="pak_aris">Pak Aris</option>
-<option value="pak_legiso">Pak Legiso</option>
-<option value="pak_fauzi">Pak Fauzi</option>
-</select>
-<div class="section-label">Checklist label</div>
-<button class="check-btn pruning-btn" id="btn-pruning" data-label="pruning">
-<span>Pruning</span>
-<div class="check-dot" id="dot-pruning"></div>
-</button>
-<button class="check-btn under-btn" id="btn-under" data-label="underpruning">
-<span>Under pruning</span>
-<div class="check-dot" id="dot-under"></div>
-</button>
-</div>
-</div>
-</div>
+        <select id="user-select" style="
+          width: 100%;
+          padding: 8px 14px;
+          font-size: 13px;
+          font-weight: 600;
+          border-radius: 10px;
+          border: 1.5px solid #c8ddb8;
+          background: #fff;
+          color: #1a5c2a;
+          cursor: pointer;
+          outline: none;
+          margin-bottom: 4px;
+        ">
+          <option value="">-- Pilih Nama --</option>
+          <option value="pak_jos">Pak Jos</option>
+          <option value="pak_handy">Pak Handy</option>
+          <option value="pak_aris">Pak Aris</option>
+          <option value="pak_legiso">Pak Legiso</option>
+          <option value="pak_fauzi">Pak Fauzi</option>
+        </select>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" style="
+          display: none;
+          margin: 10px 0 14px;
+          background: #f0f7eb;
+          border-radius: 10px;
+          padding: 10px 12px;
+          border: 1.5px solid #c8ddb8;
+        ">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:11px; font-weight:600; color:#1a5c2a;">Progress Labeling</span>
+            <span id="progress-text" style="font-size:11px; font-weight:700; color:#1a5c2a;">0 dari 1263</span>
+          </div>
+          <div style="background:#d4eac4; border-radius:99px; height:8px; overflow:hidden;">
+            <div id="progress-bar" style="
+              height:100%;
+              width:0%;
+              background: linear-gradient(90deg, #3B6D11, #5a9e20);
+              border-radius:99px;
+              transition: width 0.4s ease;
+            "></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:6px;">
+            <span id="progress-pct" style="font-size:10px; color:#5a7a4a;">0%</span>
+            <span id="progress-last" style="font-size:10px; color:#5a7a4a; font-style:italic;">Belum ada label</span>
+          </div>
+        </div>
+
+        <div class="section-label">Checklist label</div>
+        <button class="check-btn pruning-btn" id="btn-pruning" data-label="pruning">
+          <span>Pruning</span>
+          <div class="check-dot" id="dot-pruning"></div>
+        </button>
+        <button class="check-btn under-btn" id="btn-under" data-label="underpruning">
+          <span>Under pruning</span>
+          <div class="check-dot" id="dot-under"></div>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast notification -->
   <div class="toast" id="toast"></div>
