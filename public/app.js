@@ -65,6 +65,9 @@ document.getElementById('user-select').addEventListener('change', async (e) => {
   await loadChecklist()
   recalcLastPosition()
   applyFilterAndFolder()
+  // Lompat ke frame terakhir user ini di filter aktif
+  currentIndex = Math.min(lastPosition[activeFilter] || 0, filteredImages.length - 1)
+  renderImage()
   updateHeader()
   updateProgressBar()
 })
@@ -207,7 +210,7 @@ function updateProgressBar() {
 // ==========================
 // FILTER + FOLDER
 // ==========================
-function applyFilterAndFolder() {
+function applyFilterAndFolder(keepIndex = false) {
   let result = images
   if (activeFolderId !== 'all') {
     result = result.filter(img => String(img.folder_id) === String(activeFolderId))
@@ -216,7 +219,7 @@ function applyFilterAndFolder() {
     result = result.filter(img => img.cvat_label === activeFilter)
   }
   filteredImages = result
-  currentIndex = 0
+  if (!keepIndex) currentIndex = 0
   renderImage()
   updateHeader()
   updateProgressBar()
